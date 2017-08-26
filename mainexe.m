@@ -79,14 +79,18 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 [filename, pathname] = ...
-     uigetfile({'*.xlsx';},'ÇëÑ¡ÔñÐèÒª·ÖÎöµÄxlsx¸ñÊ½µÄÊý¾ÝÎÄ¼þ');
+     uigetfile({'*.xlsx';},'ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½xlsxï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½');
  File_name=[pathname,filename];
  
  [~, ~, adress] = xlsread(File_name,'C3:O3');
+ [~, ~, alladress]=xlsread(File_name,'C3:AH3');
 adress(cellfun(@(x) ~isempty(x) && isnumeric(x) && isnan(x),adress)) = {''};
+alladress(cellfun(@(x) ~isempty(x) && isnumeric(x) && isnan(x),alladress)) = {''};
+alladress(cellfun(@isempty,alladress))=[];
 adress=adress'
-% ·Ö±ð¶ÁÈëÎÄ¼þÍ·»ùÒòÆµÂÊÊý¾Ý£¬×÷ÎªÈ¨ÖØ¡£
-% Ä¿ï¿½ï¿½ï¿½ï¿½Îªï¿½Ë»ï¿½ï¿½È¨ï¿½Ø¡ï¿?
+
+% ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½Í·ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½Ý£ï¿½ï¿½ï¿½ÎªÈ¨ï¿½Ø¡ï¿½
+% Ä¿ï¿½ï¿½ï¿½ï¿½Îªï¿½Ë»ï¿½ï¿½È¨ï¿½Ø¡ï¿½?
 [~, ~, raw0_0] = xlsread(File_name,'1','B4:B14'); 
 [~, ~, raw1_0] =xlsread(File_name,'1','B18:B44'); 
 [~, ~, raw2_0] =xlsread(File_name,'1','B48:B65'); 
@@ -117,6 +121,8 @@ B2=(mean(B_Southeast'))';
 B3=(mean(B_SouthAsia'))';
 B4=(mean(B_WestAsia'))';
 B=[B1,B2,B3,B4];
+Y=[B_Northeast,B_Southeast,B_SouthAsia,B_WestAsia];
+Y(isnan(Y))=0;
 B(isnan(B))=0;
 Asia_title={'Northeast','Southeast','southAsia','WestAsia'};
 x=zeros(10,4);
@@ -139,6 +145,8 @@ handles.Asia_title=Asia_title;
 handles.x=x;
 handles.std=std;
 handles.mse=mse;
+handles.Y=Y
+handles.alladress=alladress;
 
 
 guidata(hObject,handles);
@@ -150,15 +158,16 @@ function pushbutton2_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 A_Tibetan=handles.A_Tibetan;
-B=handles.b;
+Y=handles.Y;
 adress=handles.adress;
+alladress=handles.alladress;
 Asia_title=handles.Asia_title;
 
-xdata=[A_Tibetan,B];
-[score,loading,cancha]=pca(xdata);
-title=[adress' Asia_title];
+xdata=[A_Tibetan,Y];
+[loading,Score,cancha]=pca(xdata');
+title=alladress;
 axes(handles.axes1);
-scatter(score(1,:),score(2,:));
+scatter(Score(:,1),Score(:,2));
 gname(title);
 
 % --- Executes on button press in pushbutton3.
